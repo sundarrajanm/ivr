@@ -5,5 +5,6 @@ import com.experiment.ivr.vxml.model.Session;
 import java.util.concurrent.CompletableFuture;
 
 public interface SessionStorage {
-    CompletableFuture<Session> fetchSessionByCallId(String id);
+    CompletableFuture<Session> fetchSessionById(String id);
+    CompletableFuture<Session> createNewSessionWithId();
 }
