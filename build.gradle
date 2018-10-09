@@ -20,6 +20,31 @@ subprojects {
     apply plugin: 'java'
 
     dependencies {
-        compileOnly 'org.projectlombok:lombok:1.18.2'
+        annotationProcessor 'org.projectlombok:lombok:1.18.2'
+        implementation 'org.projectlombok:lombok:1.18.2'
+
+        compile 'org.apache.commons:commons-lang3:3.8.1'
+
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
+    }
+
+    test {
+        useJUnitPlatform ()
+        testLogging {
+            events 'PASSED', 'FAILED', 'SKIPPED'
+            showStandardStreams = true
+            exceptionFormat = 'full'
+        }
+
+        afterSuite { desc, result ->
+            if (!desc.parent) {
+                println "\nTest result: ${result.resultType}"
+                println "Test summary: ${result.testCount} tests, " +
+                        "${result.successfulTestCount} succeeded, " +
+                        "${result.failedTestCount} failed, " +
+                        "${result.skippedTestCount} skipped"
+            }
+        }
     }
 }
