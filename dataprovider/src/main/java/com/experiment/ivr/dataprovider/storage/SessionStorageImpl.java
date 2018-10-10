@@ -1,9 +1,9 @@
 package com.experiment.ivr.dataprovider.storage;
 
-import com.experiment.ivr.vxml.exception.SessionNotFoundException;
-import com.experiment.ivr.vxml.model.Session;
-import com.experiment.ivr.vxml.storage.SessionStorage;
-import com.experiment.ivr.vxml.utils.FutureUtil;
+import com.experiment.ivr.core.exception.SessionNotFoundException;
+import com.experiment.ivr.core.model.Session;
+import com.experiment.ivr.core.storage.SessionStorage;
+import com.experiment.ivr.core.utils.FutureUtil;
 
 import java.util.Map;
 import java.util.UUID;
@@ -32,6 +32,12 @@ public class SessionStorageImpl implements SessionStorage {
         session.setCallId(this.createNewSessionId());
         cache.put(session.getCallId(), session);
         return CompletableFuture.completedFuture(session);
+    }
+
+    @Override
+    public CompletableFuture<Boolean> updateSession(Session session) {
+        cache.put(session.getCallId(), session);
+        return CompletableFuture.completedFuture(true);
     }
 
     private String createNewSessionId() {

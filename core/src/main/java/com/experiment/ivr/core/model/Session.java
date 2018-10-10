@@ -1,4 +1,4 @@
-package com.experiment.ivr.vxml.model;
+package com.experiment.ivr.core.model;
 
 import lombok.AccessLevel;
 import lombok.Data;
@@ -10,8 +10,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Data
 public class Session {
-    private String calledNumber;
-    private String callingNumber;
+
+    public static enum KEYS {
+        CURRENT_NODE_ID
+    };
+
     private String callId;
 
     @Getter(AccessLevel.NONE)

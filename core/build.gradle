@@ -4,4 +4,4 @@
  * This is a general purpose Gradle build.
  * Learn how to create Gradle builds at https://guides.gradle.org/creating-new-gradle-builds/
  */
-description = 'The module that hosts the various mechanisms of using IVR pages'
+description = 'The core module that implements the IVR business entities'

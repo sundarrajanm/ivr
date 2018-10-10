@@ -7,5 +7,5 @@
 description = 'The module that provides application and runtime storage'
 
 dependencies {
-    compile project(':vxml')
+    compile project(':core')
 }

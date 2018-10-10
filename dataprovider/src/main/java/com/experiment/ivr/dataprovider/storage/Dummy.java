@@ -1,7 +1,7 @@
 package com.experiment.ivr.dataprovider.storage;
 
-import com.experiment.ivr.vxml.model.App;
-import com.experiment.ivr.vxml.model.Node;
+import com.experiment.ivr.core.model.App;
+import com.experiment.ivr.core.model.Node;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,10 +23,21 @@ public class Dummy {
                 .build();
     }
 
+    private static Node constructChoiceNodeByName(String name,
+                                                  Optional<String> prompt) {
+        return Node.builder()
+                .id(UUID.randomUUID().toString())
+                .name(name)
+                .exits(new ArrayList<>())
+                .type(Node.Type.CHOICE)
+                .prompt(prompt.orElse(""))
+                .build();
+    }
+
     public static App dummyApplication() {
 
-        Node start = constructPromptNodeByName("Start", Optional.of("Hello, Welcome to Cisco Cloud VXML Server"));
-        Node choice = constructPromptNodeByName("DrinkType", Optional.of("Do you want a Beer or Tea?"));
+        Node start = constructPromptNodeByName("Start", Optional.of("Hello, Welcome to Cisco Cloud IVR Server"));
+        Node choice = constructChoiceNodeByName("DrinkType", Optional.of("Do you want a Beer or Tea?"));
         Node beer = constructPromptNodeByName("Beer", Optional.of("Excellent choice."));
         Node tea = constructPromptNodeByName("Tea", Optional.of("Not a bad choice."));
         Node end = constructPromptNodeByName("End", Optional.empty());

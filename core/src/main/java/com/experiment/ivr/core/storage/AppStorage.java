@@ -1,6 +1,6 @@
-package com.experiment.ivr.vxml.storage;
+package com.experiment.ivr.core.storage;
 
-import com.experiment.ivr.vxml.model.App;
+import com.experiment.ivr.core.model.App;
 
 import java.util.concurrent.CompletableFuture;
 

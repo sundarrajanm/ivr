@@ -1,4 +1,4 @@
-package com.experiment.ivr.vxml.model;
+package com.experiment.ivr.core.model;
 
 import lombok.Builder;
 import lombok.Getter;
