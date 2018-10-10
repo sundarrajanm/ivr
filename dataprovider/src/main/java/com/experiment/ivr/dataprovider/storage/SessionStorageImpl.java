@@ -1,9 +1,9 @@
 package com.experiment.ivr.dataprovider.storage;
 
-import com.experiment.ivr.core.exception.SessionNotFoundException;
-import com.experiment.ivr.core.model.Session;
-import com.experiment.ivr.core.storage.SessionStorage;
-import com.experiment.ivr.core.utils.FutureUtil;
+import com.experiment.ivr.core.core.exception.SessionNotFoundException;
+import com.experiment.ivr.core.core.model.Session;
+import com.experiment.ivr.core.core.storage.SessionStorage;
+import com.experiment.ivr.core.core.utils.FutureUtil;
 
 import java.util.Map;
 import java.util.UUID;
