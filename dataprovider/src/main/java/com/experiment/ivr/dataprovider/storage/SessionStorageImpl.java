@@ -40,6 +40,12 @@ public class SessionStorageImpl implements SessionStorage {
         return CompletableFuture.completedFuture(true);
     }
 
+    @Override
+    public CompletableFuture<Boolean> removeSession(Session session) {
+        cache.remove(session.getCallId());
+        return CompletableFuture.completedFuture(true);
+    }
+
     private String createNewSessionId() {
         return UUID.randomUUID().toString();
     }

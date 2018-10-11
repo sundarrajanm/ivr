@@ -96,14 +96,20 @@ public class IVRServer {
         if(nextNode.isPresent()) {
             Node n = nextNode.get();
             log.atInfo().log("Executing next node: %s", n.getName());
-            sess.putData(Session.KEYS.CURRENT_NODE_ID.getValue(), n.getId());
-            sessionStorage.updateSession(sess);
-            return Response.builder()
+            Response response = Response.builder()
                     .prompt(n.getPrompt())
                     .type(n.getType())
                     .sessionId(sess.getCallId())
                     .lastResponse(n.getExits().size() == 0)
                     .build();
+
+            if(response.isLastResponse()) {
+                sessionStorage.removeSession(sess);
+            } else {
+                sess.putData(Session.KEYS.CURRENT_NODE_ID.getValue(), n.getId());
+                sessionStorage.updateSession(sess);
+            }
+            return response;
         }
 
         return Response.builder()
@@ -112,6 +118,10 @@ public class IVRServer {
     }
 
     private Node findNextNode(Node currentNode, Optional<String> exitLabel) {
+        if(currentNode.getExits().size() == 0) {
+            throw new ExitPathNotFoundException(exitLabel);
+        }
+
         if(currentNode.getType() == Node.Type.CHOICE) {
             return currentNode
                     .getExits()
@@ -121,6 +131,7 @@ public class IVRServer {
                     .map(e -> e.getConnectTo())
                     .orElseThrow(() -> new ExitPathNotFoundException(exitLabel));
         }
+
         return currentNode.getExits().get(0).getConnectTo();
     }
 

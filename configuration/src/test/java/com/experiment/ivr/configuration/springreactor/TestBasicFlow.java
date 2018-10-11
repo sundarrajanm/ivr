@@ -142,4 +142,74 @@ public class TestBasicFlow {
                 .expectHeader().valueEquals(HttpHeaders.LOCATION, sessionId)
                 .expectBody(String.class).isEqualTo(lastButOneResponse);
     }
+
+    @Test
+    public void PostToIVREndpointWithSessionId_ToLastRequest_TriggersContinueAndClearsSession() {
+        String newCallResponseVxml = Utils.getVXMLDocument(
+                Response.builder()
+                        .type(Node.Type.PROMPT)
+                        .prompt("Hello, Welcome to Cisco Cloud IVR Server")
+                        .build()
+        );
+        String existingCallResponseVxml = Utils.getVXMLDocument(
+                Response.builder()
+                        .type(Node.Type.CHOICE)
+                        .prompt("Do you want a Beer or Tea?")
+                        .build()
+        );
+        String lastButOneResponse = Utils.getVXMLDocument(
+                Response.builder()
+                        .type(Node.Type.PROMPT)
+                        .prompt("Not a bad choice.")
+                        .build()
+        );
+        String lastResponse = Utils.getVXMLDocument(
+                Response.builder()
+                        .type(Node.Type.PROMPT)
+                        .prompt("")
+                        .build()
+        );
+
+        EntityExchangeResult result = webTestClient
+                .post().uri("/ivr/dummy")
+                .accept(MediaType.APPLICATION_XML)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().exists(HttpHeaders.LOCATION)
+                .expectBody(String.class).isEqualTo(newCallResponseVxml)
+                .returnResult();
+
+        String sessionId = result.getResponseHeaders().getLocation().toString();
+
+        webTestClient
+                .post().uri("/ivr/dummy?sessionId=" + sessionId)
+                .accept(MediaType.APPLICATION_XML)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().valueEquals(HttpHeaders.LOCATION, sessionId)
+                .expectBody(String.class).isEqualTo(existingCallResponseVxml);
+
+        webTestClient
+                .post().uri("/ivr/dummy?sessionId=" + sessionId + "&userInput=tea")
+                .accept(MediaType.APPLICATION_XML)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().valueEquals(HttpHeaders.LOCATION, sessionId)
+                .expectBody(String.class).isEqualTo(lastButOneResponse);
+
+        webTestClient
+                .post().uri("/ivr/dummy?sessionId=" + sessionId)
+                .accept(MediaType.APPLICATION_XML)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().valueEquals(HttpHeaders.LOCATION, sessionId)
+                .expectBody(String.class).isEqualTo(lastResponse);
+
+        // Call Ended, subsequent request to the same session should return 404 but for now it will be 5xx.
+        webTestClient
+                .post().uri("/ivr/dummy?sessionId=" + sessionId)
+                .accept(MediaType.APPLICATION_XML)
+                .exchange()
+                .expectStatus().is5xxServerError();
+    }
 }

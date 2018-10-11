@@ -160,7 +160,7 @@ public class DummyAppTest {
 
         Response response = server.handleExistingCall(request).join();
 
-        verify(sessionStorage, times(1)).updateSession(session);
+        verify(sessionStorage, times(1)).removeSession(session);
         assertThat(response.getType()).isEqualTo(Node.Type.PROMPT);
         assertThat(response.isLastResponse()).isTrue();
     }

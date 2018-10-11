@@ -62,9 +62,11 @@ public class HTTPHandler {
                 .userInput(userInput)
                 .build();
 
-        return Mono.fromFuture(existingCall
-                .handle(useCaseReq)
-                .thenComposeAsync(this::useCaseResponseToServerResponse));
+        return Mono
+                .fromFuture(existingCall
+                        .handle(useCaseReq)
+                        .thenComposeAsync(this::useCaseResponseToServerResponse)
+                );
     }
 
     private CompletableFuture<ServerResponse> useCaseResponseToServerResponse(Response response) {
