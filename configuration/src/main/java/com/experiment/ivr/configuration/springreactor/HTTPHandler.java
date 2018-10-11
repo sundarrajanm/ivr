@@ -6,6 +6,7 @@ import com.experiment.ivr.usecase.model.Request;
 import com.experiment.ivr.usecase.model.Response;
 import lombok.extern.flogger.Flogger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -68,6 +69,7 @@ public class HTTPHandler {
         return ServerResponse
                 .ok()
                 .contentType(MediaType.APPLICATION_XML)
+                .header(HttpHeaders.LOCATION, response.getSessionId())
                 .body(BodyInserters.fromObject(response.getDocument()))
                 .toFuture();
     }

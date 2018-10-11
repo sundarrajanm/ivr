@@ -21,20 +21,19 @@ public class StartCallImpl implements StartCall {
 
     @Override
     public CompletableFuture<Response> handle(Request request) {
-        log.atInfo().log("Starting new call to IVR Server: " + server);
-        server.handle(this.toCoreRequest(request));
-        return CompletableFuture.completedFuture(
-                Response.builder()
-                        .document(Utils.readTestXML("NewCallResponse.xml"))
-                        .build()
-        );
+        return server.handleNewCall(this.toCoreRequest(request))
+                .thenApplyAsync(response ->
+                        Response.builder()
+                                .sessionId(response.getSessionId())
+                                .document(Utils.getVXMLDocument(response))
+                                .build()
+                );
     }
 
 
     private com.experiment.ivr.core.core.model.Request toCoreRequest(Request request) {
         return com.experiment.ivr.core.core.model.Request.builder()
-                .uri(request.getApp())
-                .sessionId(request.getSessionId())
+                .app(request.getApp())
                 .build();
     }
 }

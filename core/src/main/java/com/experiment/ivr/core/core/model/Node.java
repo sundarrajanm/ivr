@@ -2,6 +2,7 @@ package com.experiment.ivr.core.core.model;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,6 +10,7 @@ import java.util.UUID;
 
 @Builder
 @Getter
+@ToString
 public class Node {
     public enum Type {
         PROMPT,

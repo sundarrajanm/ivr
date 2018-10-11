@@ -21,18 +21,18 @@ public class ContinueCallImpl implements ContinueCall {
 
     @Override
     public CompletableFuture<Response> handle(Request request) {
-        log.atInfo().log("Continuing call to IVR Server: " + server);
-        server.handle(this.toCoreRequest(request));
-        return CompletableFuture.completedFuture(
-                Response.builder()
-                        .document(Utils.readTestXML("ExistingCallResponse.xml"))
-                        .build()
-        );
+        return server.handleExistingCall(this.toCoreRequest(request))
+                .thenApplyAsync(response ->
+                        Response.builder()
+                                .sessionId(response.getSessionId())
+                                .document(Utils.getVXMLDocument(response))
+                                .build()
+                );
     }
 
     private com.experiment.ivr.core.core.model.Request toCoreRequest(Request request) {
         return com.experiment.ivr.core.core.model.Request.builder()
-                .uri(request.getApp())
+                .app(request.getApp())
                 .sessionId(request.getSessionId())
                 .build();
     }

@@ -2,6 +2,7 @@ package com.experiment.ivr.dataprovider.storage;
 
 import com.experiment.ivr.core.core.model.App;
 import com.experiment.ivr.core.core.storage.AppStorage;
+import com.experiment.ivr.core.core.utils.Dummy;
 import lombok.extern.flogger.Flogger;
 
 import java.util.concurrent.CompletableFuture;
@@ -16,6 +17,6 @@ public class AppStorageImpl implements AppStorage {
 
     private App readFromStorage(String appName) {
         log.atInfo().log("Received app from storage: %s", appName);
-        return App.builder().build();
+        return Dummy.getDummyApplication();
     }
 }

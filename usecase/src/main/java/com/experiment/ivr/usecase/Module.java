@@ -32,7 +32,7 @@ public class Module extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(AppStorage.class).to(AppStorageImpl.class);
-        bind(SessionStorage.class).to(SessionStorageImpl.class);
+        bind(AppStorage.class).to(AppStorageImpl.class).asEagerSingleton();
+        bind(SessionStorage.class).to(SessionStorageImpl.class).asEagerSingleton();
     }
 }

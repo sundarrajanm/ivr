@@ -8,7 +8,7 @@ import lombok.ToString;
 @Getter
 @ToString
 public class Request {
-    private String uri;
+    private String app;
     private String sessionId;
     private String userInput;
 }

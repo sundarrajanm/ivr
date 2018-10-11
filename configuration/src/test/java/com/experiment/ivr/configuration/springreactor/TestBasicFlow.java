@@ -1,23 +1,29 @@
 package com.experiment.ivr.configuration.springreactor;
 
+import com.experiment.ivr.core.core.model.Node;
+import com.experiment.ivr.core.core.model.Response;
+import com.experiment.ivr.usecase.Utils;
+import com.google.common.net.HttpHeaders;
+import lombok.extern.flogger.Flogger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.UUID;
 
 import static org.junit.Assert.fail;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Flogger
 public class TestBasicFlow {
 
     @Autowired
@@ -37,26 +43,54 @@ public class TestBasicFlow {
 
     @Test
     public void PostToIVREndpoint_TriggersNewCall() {
-        String newCallResponseVxml = this.readTestXML("NewCallResponse.xml");
+        String newCallResponseVxml = Utils.getVXMLDocument(
+                Response.builder()
+                        .type(Node.Type.PROMPT)
+                        .prompt("Hello, Welcome to Cisco Cloud IVR Server")
+                        .build()
+        );
 
         webTestClient
                 .post().uri("/ivr/dummy")
                 .accept(MediaType.APPLICATION_XML)
                 .exchange()
                 .expectStatus().isOk()
+                .expectHeader().exists(HttpHeaders.LOCATION)
                 .expectBody(String.class).isEqualTo(newCallResponseVxml);
     }
 
     @Test
     public void PostToIVREndpointWithSessionId_TriggersContinueExistingCall() {
-        String existingCallResponseVxml = this.readTestXML("ExistingCallResponse.xml");
-        String sessionId = UUID.randomUUID().toString();
+        String newCallResponseVxml = Utils.getVXMLDocument(
+                Response.builder()
+                        .type(Node.Type.PROMPT)
+                        .prompt("Hello, Welcome to Cisco Cloud IVR Server")
+                        .build()
+        );
+        String existingCallResponseVxml = Utils.getVXMLDocument(
+                Response.builder()
+                        .type(Node.Type.CHOICE)
+                        .prompt("Do you want a Beer or Tea?")
+                        .build()
+        );
+
+        EntityExchangeResult result = webTestClient
+                .post().uri("/ivr/dummy")
+                .accept(MediaType.APPLICATION_XML)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().exists(HttpHeaders.LOCATION)
+                .expectBody(String.class).isEqualTo(newCallResponseVxml)
+                .returnResult();
+
+        String sessionId = result.getResponseHeaders().getLocation().toString();
 
         webTestClient
                 .post().uri("/ivr/dummy?sessionId=" + sessionId)
                 .accept(MediaType.APPLICATION_XML)
                 .exchange()
                 .expectStatus().isOk()
+                .expectHeader().valueEquals(HttpHeaders.LOCATION, sessionId)
                 .expectBody(String.class).isEqualTo(existingCallResponseVxml);
     }
 }

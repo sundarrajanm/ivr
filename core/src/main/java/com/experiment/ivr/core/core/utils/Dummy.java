@@ -1,4 +1,4 @@
-package com.experiment.ivr.core;
+package com.experiment.ivr.core.core.utils;
 
 import com.experiment.ivr.core.core.model.App;
 import com.experiment.ivr.core.core.model.Node;
@@ -34,7 +34,11 @@ public class Dummy {
                 .build();
     }
 
-    public static App dummyApplication() {
+    public static App getDummyApplication() {
+        return app;
+    }
+
+    private static App dummyApplication() {
 
         Node start = constructPromptNodeByName("Start", Optional.of("Hello, Welcome to Cisco Cloud IVR Server"));
         Node choice = constructChoiceNodeByName("DrinkType", Optional.of("Do you want a Beer or Tea?"));

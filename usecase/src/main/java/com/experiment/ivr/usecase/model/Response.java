@@ -9,4 +9,5 @@ import lombok.ToString;
 @ToString
 public class Response {
     private String document;
+    private String sessionId;
 }

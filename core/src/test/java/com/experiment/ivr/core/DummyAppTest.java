@@ -8,6 +8,7 @@ import com.experiment.ivr.core.core.model.Response;
 import com.experiment.ivr.core.core.model.Session;
 import com.experiment.ivr.core.core.storage.AppStorage;
 import com.experiment.ivr.core.core.storage.SessionStorage;
+import com.experiment.ivr.core.core.utils.Dummy;
 import com.experiment.ivr.core.core.utils.FutureUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,8 +46,8 @@ public class DummyAppTest {
                 new ApplicationNotFoundException()))
                 .given(appStorage).getApplicationByName("test");
 
-        Request request = Request.builder().uri("/test").build();
-        Executable e = () -> server.handle(request).join();
+        Request request = Request.builder().app("/test").build();
+        Executable e = () -> server.handleNewCall(request).join();
 
         RuntimeException exception = assertThrows(
                 CompletionException.class, e);
@@ -64,11 +65,11 @@ public class DummyAppTest {
                 .createNewSessionWithId();
 
         Request request = Request.builder()
-                .uri("/" + Dummy.APP_NAME)
+                .app("/" + Dummy.APP_NAME)
                 .build();
 
-        Response response = server.handle(request).join();
-        assertThat(session.getData(Session.KEYS.CURRENT_NODE_ID.toString())).isEqualTo(Dummy.app.getStartNodeId());
+        Response response = server.handleNewCall(request).join();
+        assertThat(session.getData(Session.KEYS.CURRENT_NODE_ID.getValue())).isEqualTo(Dummy.app.getStartNodeId());
         verify(sessionStorage, times(1)).updateSession(session);
         assertThat(response).isNotNull();
         assertThat(response.getPrompt()).isEqualTo("Hello, Welcome to Cisco Cloud IVR Server");
@@ -80,11 +81,11 @@ public class DummyAppTest {
     public void continueKnownApplicationFromCurrentNode_ShouldUpdateNextNodeAsCurrentNode_AndReturnSubsequentResponse () {
 
         Session session = new Session();
-        session.putData(Session.KEYS.CURRENT_NODE_ID.toString(), Dummy.app.getStartNodeId());
+        session.putData(Session.KEYS.CURRENT_NODE_ID.getValue(), Dummy.app.getStartNodeId());
         session.setCallId(UUID.randomUUID().toString());
 
         Request request = Request.builder()
-                .uri("/" + Dummy.APP_NAME)
+                .app("/" + Dummy.APP_NAME)
                 .sessionId(session.getCallId())
                 .build();
 
@@ -93,13 +94,13 @@ public class DummyAppTest {
                 .given(sessionStorage)
                 .fetchSessionById(session.getCallId());
 
-        Response response = server.handle(request).join();
+        Response response = server.handleExistingCall(request).join();
         assertThat(response.getSessionId())
                 .isEqualTo(request.getSessionId());
 
         String nextNodeId = getNodeByName("DrinkType");
 
-        assertThat(session.getData(Session.KEYS.CURRENT_NODE_ID.toString())).isEqualTo(nextNodeId);
+        assertThat(session.getData(Session.KEYS.CURRENT_NODE_ID.getValue())).isEqualTo(nextNodeId);
         verify(sessionStorage, times(1)).updateSession(session);
         assertThat(response.getPrompt()).isEqualTo("Do you want a Beer or Tea?");
         assertThat(response.getType()).isEqualTo(Node.Type.CHOICE);
@@ -119,11 +120,11 @@ public class DummyAppTest {
     @Test
     public void givenCurrentNodeIsChoice_WhenRequestHasChoiceInput_ReturnNextCorrectResponseBasedOnChoice () {
         Session session = new Session();
-        session.putData(Session.KEYS.CURRENT_NODE_ID.toString(), getNodeByName("DrinkType"));
+        session.putData(Session.KEYS.CURRENT_NODE_ID.getValue(), getNodeByName("DrinkType"));
         session.setCallId(UUID.randomUUID().toString());
 
         Request request = Request.builder()
-                .uri("/" + Dummy.APP_NAME)
+                .app("/" + Dummy.APP_NAME)
                 .sessionId(session.getCallId())
                 .userInput("tea")
                 .build();
@@ -133,7 +134,7 @@ public class DummyAppTest {
                 .given(sessionStorage)
                 .fetchSessionById(session.getCallId());
 
-        Response response = server.handle(request).join();
+        Response response = server.handleExistingCall(request).join();
 
         verify(sessionStorage, times(1)).updateSession(session);
         assertThat(response.getPrompt()).isEqualTo("Not a bad choice.");
@@ -144,11 +145,11 @@ public class DummyAppTest {
     @Test
     public void givenCurrentNodeIsLastButOne_WhenRequestHasNextArrives_ReturnLastResponse () {
         Session session = new Session();
-        session.putData(Session.KEYS.CURRENT_NODE_ID.toString(), getNodeByName("Beer"));
+        session.putData(Session.KEYS.CURRENT_NODE_ID.getValue(), getNodeByName("Beer"));
         session.setCallId(UUID.randomUUID().toString());
 
         Request request = Request.builder()
-                .uri("/" + Dummy.APP_NAME)
+                .app("/" + Dummy.APP_NAME)
                 .sessionId(session.getCallId())
                 .build();
 
@@ -157,7 +158,7 @@ public class DummyAppTest {
                 .given(sessionStorage)
                 .fetchSessionById(session.getCallId());
 
-        Response response = server.handle(request).join();
+        Response response = server.handleExistingCall(request).join();
 
         verify(sessionStorage, times(1)).updateSession(session);
         assertThat(response.getType()).isEqualTo(Node.Type.PROMPT);

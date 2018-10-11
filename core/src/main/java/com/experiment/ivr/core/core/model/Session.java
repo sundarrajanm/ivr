@@ -1,18 +1,27 @@
 package com.experiment.ivr.core.core.model;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Data
+@ToString
 public class Session {
 
     public static enum KEYS {
-        CURRENT_NODE_ID
+        CURRENT_NODE_ID ("CURRENT_NODE_ID");
+
+        // getter method
+        private String value;
+        public String getValue()
+        {
+            return this.value;
+        }
+        KEYS(String value)
+        {
+            this.value = value;
+        }
     };
 
     private String callId;

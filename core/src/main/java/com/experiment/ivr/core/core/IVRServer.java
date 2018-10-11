@@ -1,9 +1,12 @@
 package com.experiment.ivr.core.core;
 
 import com.experiment.ivr.core.core.exception.ExitPathNotFoundException;
+import com.experiment.ivr.core.core.exception.SessionAccessException;
+import com.experiment.ivr.core.core.exception.SessionNotFoundException;
 import com.experiment.ivr.core.core.model.*;
 import com.experiment.ivr.core.core.storage.AppStorage;
 import com.experiment.ivr.core.core.storage.SessionStorage;
+import com.experiment.ivr.core.core.utils.FutureUtil;
 import lombok.extern.flogger.Flogger;
 import org.apache.commons.lang3.StringUtils;
 
@@ -27,37 +30,43 @@ public class IVRServer {
         this.sessionStorage = sessionStorage;
     }
 
-    public CompletableFuture<Response> handle(Request request) {
-        log.atInfo().log("Handling %s", request);
+    public CompletableFuture<Response> handleNewCall(Request request) {
         String appName = this.appNameFromUri(request);
 
-        return appStorage
-                .getApplicationByName(appName)
-                .thenComposeAsync(app -> this.handleRequestWith(app, request));
+        CompletableFuture<App> appFuture = appStorage.getApplicationByName(appName);
+        return appFuture.thenComposeAsync(app ->
+            sessionStorage.createNewSessionWithId()
+                    .thenApplyAsync(session -> this.newCall(app, session, request))
+        );
     }
 
-    private CompletableFuture<Response> handleRequestWith(App app, Request request) {
-
+    public CompletableFuture<Response> handleExistingCall(Request request) {
+        String appName = this.appNameFromUri(request);
         Optional<String> sessionId = this.getSessionIdFrom(request);
-        log.atInfo().log("Session in request: %s", sessionId);
-        CompletableFuture<Session> session = sessionId
-                .map(sessionStorage::fetchSessionById)
-                .orElseGet(sessionStorage::createNewSessionWithId);
 
-        return session
-                .thenApplyAsync(sess -> this.executeNodeWith(app, sess, request));
+        if(sessionId.isPresent()) {
+            CompletableFuture<App> appFuture = appStorage.getApplicationByName(appName);
+            CompletableFuture<Session> sessionFuture = sessionStorage.fetchSessionById(sessionId.get());
+            return CompletableFuture
+                    .allOf(appFuture, sessionFuture)
+                    .thenApplyAsync(v -> resumeFromCurrentNode(request, appFuture, sessionFuture));
+        }
+
+        return FutureUtil.failedFuture(new SessionNotFoundException());
     }
 
-    private Response executeNodeWith(App app, Session sess, Request req) {
-        return Optional.ofNullable(sess.getData(Session.KEYS.CURRENT_NODE_ID.toString()))
+    private Response resumeFromCurrentNode(Request request, CompletableFuture<App> appFuture, CompletableFuture<Session> sessionFuture) {
+        Session session = sessionFuture.join();
+        App app = appFuture.join();
+        return Optional.ofNullable(session.getData(Session.KEYS.CURRENT_NODE_ID.getValue()))
                 .map(Object::toString)
-                .map(currentNodeId -> this.continueCall(app, sess, req, currentNodeId))
-                .orElseGet(() -> this.newCall(app, sess, req));
+                .map(currentNodeId -> this.continueCall(app, session, request, currentNodeId))
+                .orElseThrow(() -> new SessionAccessException());
     }
 
     private Response newCall(App app, Session sess, Request request) {
-        log.atInfo().log("Starting new session for %s", sess.getCallId());
-        sess.putData(Session.KEYS.CURRENT_NODE_ID.toString(), app.getStartNodeId());
+        log.atInfo().log("Starting new session: %s", sess);
+        sess.putData(Session.KEYS.CURRENT_NODE_ID.getValue(), app.getStartNodeId());
         sessionStorage.updateSession(sess);
 
         return app.getNodes()
@@ -75,7 +84,8 @@ public class IVRServer {
     }
 
     private Response continueCall(App app, Session sess, Request request, String currentNodeId) {
-        log.atInfo().log("Trying to find next node from %s in the session %s", currentNodeId, sess.getCallId());
+        log.atInfo().log("Trying to find next node from %s in the session %s",
+                currentNodeId, sess.getCallId());
         Optional<Node> nextNode = app
                 .getNodes()
                 .stream()
@@ -86,7 +96,7 @@ public class IVRServer {
         if(nextNode.isPresent()) {
             Node n = nextNode.get();
             log.atInfo().log("Executing next node: %s", n.getName());
-            sess.putData(Session.KEYS.CURRENT_NODE_ID.toString(), n.getId());
+            sess.putData(Session.KEYS.CURRENT_NODE_ID.getValue(), n.getId());
             sessionStorage.updateSession(sess);
             return Response.builder()
                     .prompt(n.getPrompt())
@@ -115,7 +125,7 @@ public class IVRServer {
     }
 
     private String appNameFromUri(Request request) {
-        String uri = request.getUri();
+        String uri = request.getApp();
         String app = "";
 
         if(!uri.startsWith("/") && StringUtils.isNotBlank(uri)) {
@@ -126,7 +136,7 @@ public class IVRServer {
             app = uri.substring(1);
         }
 
-        log.atInfo().log("Using application: %s", app);
+        log.atInfo().log("Trying to use application: %s", app);
         return app;
     }
 
