@@ -10,5 +10,5 @@
 rootProject.name = 'ivr'
 include 'core'
 include 'dataprovider'
-include 'vxml'
+include 'usecase'
 include 'configuration'

@@ -5,6 +5,7 @@ import com.experiment.ivr.core.core.model.*;
 import com.experiment.ivr.core.core.storage.AppStorage;
 import com.experiment.ivr.core.core.storage.SessionStorage;
 import lombok.extern.flogger.Flogger;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -116,6 +117,10 @@ public class IVRServer {
     private String appNameFromUri(Request request) {
         String uri = request.getUri();
         String app = "";
+
+        if(!uri.startsWith("/") && StringUtils.isNotBlank(uri)) {
+            app = uri;
+        }
 
         if(uri.startsWith("/")) {
             app = uri.substring(1);

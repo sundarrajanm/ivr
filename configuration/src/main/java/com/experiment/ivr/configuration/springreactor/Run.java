@@ -1,4 +1,4 @@
-package com.experiment.ivr.core.configuration.springreactor;
+package com.experiment.ivr.configuration.springreactor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
