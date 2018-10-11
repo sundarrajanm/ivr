@@ -34,11 +34,12 @@ public class HTTPHandler {
     public Mono<ServerResponse> handle(ServerRequest request) {
         String appName = request.pathVariable("app");
         Optional<String> sessionId = request.queryParam("sessionId");
+         String userInput = request.queryParam("userInput").orElse("");
 
         log.atInfo().log("Handing over to app: %s", appName);
 
         return sessionId
-                .map(id -> this.handleExistingCall(appName, id))
+                .map(id -> this.handleExistingCall(appName, id, userInput))
                 .orElseGet(() -> this.handleNewCall(appName));
     }
 
@@ -53,10 +54,12 @@ public class HTTPHandler {
         );
     }
 
-    private Mono<ServerResponse> handleExistingCall(String appName, String sessionId) {
+    private Mono<ServerResponse> handleExistingCall(String appName, String sessionId,
+                                                    String userInput) {
         Request useCaseReq = Request.builder()
                 .app(appName)
                 .sessionId(sessionId)
+                .userInput(userInput)
                 .build();
 
         return Mono.fromFuture(existingCall

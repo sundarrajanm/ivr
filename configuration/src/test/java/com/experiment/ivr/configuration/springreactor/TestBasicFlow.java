@@ -93,4 +93,53 @@ public class TestBasicFlow {
                 .expectHeader().valueEquals(HttpHeaders.LOCATION, sessionId)
                 .expectBody(String.class).isEqualTo(existingCallResponseVxml);
     }
+
+    @Test
+    public void PostToIVREndpointWithSessionId_AndUserInput_TriggersContinueOnRightExitPath() {
+        String newCallResponseVxml = Utils.getVXMLDocument(
+                Response.builder()
+                        .type(Node.Type.PROMPT)
+                        .prompt("Hello, Welcome to Cisco Cloud IVR Server")
+                        .build()
+        );
+        String existingCallResponseVxml = Utils.getVXMLDocument(
+                Response.builder()
+                        .type(Node.Type.CHOICE)
+                        .prompt("Do you want a Beer or Tea?")
+                        .build()
+        );
+        String lastButOneResponse = Utils.getVXMLDocument(
+                Response.builder()
+                        .type(Node.Type.PROMPT)
+                        .prompt("Not a bad choice.")
+                        .build()
+        );
+
+        EntityExchangeResult result = webTestClient
+                .post().uri("/ivr/dummy")
+                .accept(MediaType.APPLICATION_XML)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().exists(HttpHeaders.LOCATION)
+                .expectBody(String.class).isEqualTo(newCallResponseVxml)
+                .returnResult();
+
+        String sessionId = result.getResponseHeaders().getLocation().toString();
+
+        webTestClient
+                .post().uri("/ivr/dummy?sessionId=" + sessionId)
+                .accept(MediaType.APPLICATION_XML)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().valueEquals(HttpHeaders.LOCATION, sessionId)
+                .expectBody(String.class).isEqualTo(existingCallResponseVxml);
+
+        webTestClient
+                .post().uri("/ivr/dummy?sessionId=" + sessionId + "&userInput=tea")
+                .accept(MediaType.APPLICATION_XML)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().valueEquals(HttpHeaders.LOCATION, sessionId)
+                .expectBody(String.class).isEqualTo(lastButOneResponse);
+    }
 }

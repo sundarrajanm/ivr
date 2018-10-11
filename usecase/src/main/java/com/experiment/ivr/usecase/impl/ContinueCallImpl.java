@@ -33,6 +33,7 @@ public class ContinueCallImpl implements ContinueCall {
     private com.experiment.ivr.core.core.model.Request toCoreRequest(Request request) {
         return com.experiment.ivr.core.core.model.Request.builder()
                 .app(request.getApp())
+                .userInput(request.getUserInput())
                 .sessionId(request.getSessionId())
                 .build();
     }

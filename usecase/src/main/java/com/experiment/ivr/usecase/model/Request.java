@@ -12,6 +12,7 @@ import java.util.Map;
 public class Request {
     private String app;
     private String sessionId;
+    private String userInput;
     private Map<String, String> params;
     private String document;
 }
