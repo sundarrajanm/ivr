@@ -1,5 +1,6 @@
 package com.experiment.ivr.runtime.springreactor;
 
+import com.experiment.ivr.core.core.exception.ApplicationNotFoundException;
 import com.experiment.ivr.core.core.exception.SessionNotFoundException;
 import com.experiment.ivr.usecase.ContinueCall;
 import com.experiment.ivr.usecase.StartCall;
@@ -35,7 +36,7 @@ public class HTTPHandler {
     public Mono<ServerResponse> handle(ServerRequest request) {
         String appName = request.pathVariable("app");
         Optional<String> sessionId = request.queryParam("sessionId");
-         String userInput = request.queryParam("userInput").orElse("");
+        String userInput = request.queryParam("userInput").orElse("");
 
         log.atInfo().log("Handing over to app: %s", appName);
 
@@ -63,14 +64,15 @@ public class HTTPHandler {
         return process(existingCall.handle(useCaseReq));
     }
 
-    private Mono<ServerResponse> process(CompletableFuture<Response> handle) {
+    private Mono<ServerResponse> process(CompletableFuture<Response> handled) {
         Mono<ServerResponse> result = Mono.fromFuture(
-                handle.thenComposeAsync(this::useCaseResponseToServerResponse)
+                handled.thenComposeAsync(this::useCaseResponseToServerResponse)
         );
 
         return result.onErrorResume(e -> {
-            log.atInfo().log("Inside error handler: %s", e);
-            if(e.getCause() instanceof SessionNotFoundException) {
+            Throwable t = e.getCause();
+            if(t instanceof SessionNotFoundException || t instanceof ApplicationNotFoundException) {
+                log.atWarning().log(" Handling: %s", e.getCause());
                 return ServerResponse
                         .notFound()
                         .build();

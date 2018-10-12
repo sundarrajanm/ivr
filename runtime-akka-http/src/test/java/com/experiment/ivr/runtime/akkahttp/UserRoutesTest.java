@@ -24,8 +24,8 @@ public class UserRoutesTest extends JUnitRouteTest {
     @Before
     public void initClass() {
         ActorSystem system = ActorSystem.create("helloAkkaHttpServer");
-        ActorRef userRegistryActor = system.actorOf(UserRegistryActor.props(), "userRegistryActor");
-        QuickstartServer server = new QuickstartServer(system, userRegistryActor);
+        ActorRef userRegistryActor = system.actorOf(HTTPHandlerActor.props(), "userRegistryActor");
+        Run server = new Run(system, userRegistryActor);
         appRoute = testRoute(server.createRoute());
     }
     //#set-up
