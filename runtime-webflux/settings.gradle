@@ -7,9 +7,4 @@
  * in the user guide at https://docs.gradle.org/4.10.2/userguide/multi_project_builds.html
  */
 
-rootProject.name = 'ivr'
-include 'core'
-include 'dataprovider'
-include 'usecase'
-include 'runtime-webflux'
-include 'runtime-akka-http'
+rootProject.name = 'runtime-webflux'

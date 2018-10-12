@@ -22,7 +22,7 @@ class BasicLoad extends Simulation {
       .pause(2 seconds)
       .feed(feeder)
 
-      .exec(http("Got Next")
+      .exec(http("Got to choice")
         .post(s"/ivr/dummy")
         .queryParam("sessionId", StringBody("${callId}"))
         .check(status.is(200))
@@ -47,23 +47,28 @@ class BasicLoad extends Simulation {
             .check(status.is(200))
             .check(xpath("//pre:block", List("pre" -> "http://www.w3.org/2001/vxml"))
               .is("Excellent choice."))
-          ))
+          )
+      )
       .pause(2 seconds)
-      .exec(http("Go next - End").post(s"/ivr/dummy")
+      .exec(http("Go to end").post(s"/ivr/dummy")
         .queryParam("sessionId", StringBody("${callId}"))
         .check(status.is(200))
         .check(xpath("//pre:block", List("pre" -> "http://www.w3.org/2001/vxml"))
           .is(""))
       )
       .pause(2 seconds)
+      .exec(http("Session Cleared").post(s"/ivr/dummy")
+        .queryParam("sessionId", StringBody("${callId}"))
+        .check(status.is(404))
+      )
 
   val scn = scenario("BasicFlow").exec(steps)
 
   setUp(
     scn.inject(
-      rampUsersPerSec(1) to (50) during (30 seconds),
-      constantUsersPerSec(100) during (60 seconds),
-      rampUsersPerSec(50) to (1) during (30 seconds))
+      rampUsersPerSec(1) to (100) during (1 minute),
+      constantUsersPerSec(100) during (3 minute),
+      rampUsersPerSec(100) to (1) during (1 minute))
   ).protocols(httpConf).assertions(
     global.successfulRequests.percent.is(100)
   )
