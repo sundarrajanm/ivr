@@ -1,0 +1,7 @@
+micronaut:
+    application:
+        name: runtime-micronaut
+                
+#Uncomment to set server port
+#    server:
+#        port: 8080
