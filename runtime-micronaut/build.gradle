@@ -19,11 +19,14 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom 'io.micronaut:bom:1.0.0.RC1'
+        mavenBom 'io.micronaut:bom:1.0.0.RC2'
     }
 }
 
 dependencies {
+    compile project(':usecase')
+    compile project(':dataprovider')
+
     annotationProcessor "io.micronaut:inject-java"
     annotationProcessor "io.micronaut:validation"
     implementation "io.micronaut:inject"
