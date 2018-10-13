@@ -47,6 +47,6 @@ shadowJar {
 
 run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1')
 
-mainClassName = "runtime.micronaut.Application"
+mainClassName = "runtime.micronaut.Run"
 compileJava.options.compilerArgs += '-parameters'
 compileTestJava.options.compilerArgs += '-parameters'

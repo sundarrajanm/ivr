@@ -66,9 +66,12 @@ class BasicLoad extends Simulation {
 
   setUp(
     scn.inject(
-      rampUsersPerSec(1) to (100) during (1 minute),
-      constantUsersPerSec(100) during (3 minute),
-      rampUsersPerSec(100) to (1) during (1 minute))
+//      rampUsersPerSec(1) to (10) during (10 seconds),
+//      constantUsersPerSec(10) during (30 seconds),
+//      rampUsersPerSec(10) to (1) during (10 seconds))
+          rampUsersPerSec(1) to (100) during (1 minute),
+          constantUsersPerSec(100) during (3 minute),
+          rampUsersPerSec(100) to (1) during (1 minute))
   ).protocols(httpConf).assertions(
     global.successfulRequests.percent.is(100)
   )

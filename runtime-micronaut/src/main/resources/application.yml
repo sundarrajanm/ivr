@@ -1,7 +1,11 @@
 micronaut:
     application:
         name: runtime-micronaut
-                
+#    server:
+#        netty:
+#            worker:
+#                threads: 8 # number of netty worker threads
+
 #Uncomment to set server port
 #    server:
 #        port: 8080
