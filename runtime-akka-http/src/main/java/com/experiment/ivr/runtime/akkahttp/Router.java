@@ -89,7 +89,7 @@ public class Router extends AllDirectives {
                 .build();
 
         return newCall.handle(useCaseReq)
-                .thenComposeAsync(this::useCaseResponseToServerResponse);
+                .thenApply(this::useCaseResponseToServerResponse);
     }
 
     private CompletableFuture<HttpResponse> handleExistingCall(String appName,
@@ -102,17 +102,16 @@ public class Router extends AllDirectives {
                 .build();
 
         return existingCall.handle(useCaseReq)
-                .thenComposeAsync(this::useCaseResponseToServerResponse);
+                .thenApply(this::useCaseResponseToServerResponse);
     }
 
-    private CompletableFuture<HttpResponse> useCaseResponseToServerResponse(Response response) {
+    private HttpResponse useCaseResponseToServerResponse(Response response) {
         log.atInfo().log("Converting use case response to server response: %s", response);
-        return CompletableFuture.completedFuture(HttpResponse
+        return HttpResponse
                 .create()
                 .withStatus(StatusCodes.OK)
                 .addHeader(Location.create(response.getSessionId()))
                 .withEntity(ContentTypes.create(APPLICATION_XML,
-                        HttpCharsets.UTF_8), response.getDocument())
-        );
+                        HttpCharsets.UTF_8), response.getDocument());
     }
 }

@@ -66,7 +66,7 @@ public class HTTPHandler {
 
     private Mono<ServerResponse> process(CompletableFuture<Response> handled) {
         Mono<ServerResponse> result = Mono.fromFuture(
-                handled.thenComposeAsync(this::useCaseResponseToServerResponse)
+                handled.thenApply(this::useCaseResponseToServerResponse)
         );
 
         return result.onErrorResume(e -> {
@@ -82,13 +82,13 @@ public class HTTPHandler {
         });
     }
 
-    private CompletableFuture<ServerResponse> useCaseResponseToServerResponse(Response response) {
+    private ServerResponse useCaseResponseToServerResponse(Response response) {
         log.atInfo().log("Converting use case response to server response: %s", response);
         return ServerResponse
                 .ok()
                 .contentType(MediaType.APPLICATION_XML)
                 .header(HttpHeaders.LOCATION, response.getSessionId())
                 .body(BodyInserters.fromObject(response.getDocument()))
-                .toFuture();
+                .block();
     }
 }
