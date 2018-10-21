@@ -116,14 +116,4 @@ public class MainVerticle extends AbstractVerticle {
 
     return existingCall.handle(useCaseReq);
   }
-
-//  private HttpResponse useCaseResponseToServerResponse(Response response) {
-//    log.atInfo().log("Converting use case response to server response: %s", response);
-//    return HttpResponse
-//      .create()
-//      .withStatus(StatusCodes.OK)
-//      .addHeader(Location.create(response.getSessionId()))
-//      .withEntity(ContentTypes.create(APPLICATION_XML,
-//        HttpCharsets.UTF_8), response.getDocument());
-//  }
 }

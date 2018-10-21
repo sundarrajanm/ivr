@@ -7,8 +7,7 @@ import scala.concurrent.duration._
 import scala.util.Random
 
 class BasicLoad extends Simulation {
-  val hostName = "localhost:8080"
-  val feeder = Iterator.continually(Map("name" -> (Random.alphanumeric.take(20).mkString)))
+  val hostName = "localhost:9000"
   val httpConf = http.baseURL(s"http://$hostName")
 
   val steps =
@@ -20,7 +19,6 @@ class BasicLoad extends Simulation {
         .is("Hello, Welcome to Cisco Cloud IVR Server"))
     )
       .pause(2 seconds)
-      .feed(feeder)
 
       .exec(http("Got to choice")
         .post(s"/ivr/dummy")
