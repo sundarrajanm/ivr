@@ -40,7 +40,7 @@ public class Dummy {
 
     private static App dummyApplication() {
 
-        Node start = constructPromptNodeByName("Start", Optional.of("Hello, Welcome to Cisco Cloud IVR Server"));
+        Node start = constructPromptNodeByName("Start", Optional.of("Hello, Welcome to IVR Server"));
         Node choice = constructChoiceNodeByName("DrinkType", Optional.of("Do you want a Beer or Tea?"));
         Node beer = constructPromptNodeByName("Beer", Optional.of("Excellent choice."));
         Node tea = constructPromptNodeByName("Tea", Optional.of("Not a bad choice."));
