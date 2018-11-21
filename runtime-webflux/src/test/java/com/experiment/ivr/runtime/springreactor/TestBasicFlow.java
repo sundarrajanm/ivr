@@ -64,7 +64,7 @@ public class TestBasicFlow {
         String newCallResponseVxml = Utils.getVXMLDocument(
                 Response.builder()
                         .type(Node.Type.PROMPT)
-                        .prompt("Hello, Welcome to Cisco Cloud IVR Server")
+                        .prompt("Hello, Welcome to IVR Server")
                         .build()
         );
         String existingCallResponseVxml = Utils.getVXMLDocument(
@@ -99,7 +99,7 @@ public class TestBasicFlow {
         String newCallResponseVxml = Utils.getVXMLDocument(
                 Response.builder()
                         .type(Node.Type.PROMPT)
-                        .prompt("Hello, Welcome to Cisco Cloud IVR Server")
+                        .prompt("Hello, Welcome to IVR Server")
                         .build()
         );
         String existingCallResponseVxml = Utils.getVXMLDocument(
@@ -148,7 +148,7 @@ public class TestBasicFlow {
         String newCallResponseVxml = Utils.getVXMLDocument(
                 Response.builder()
                         .type(Node.Type.PROMPT)
-                        .prompt("Hello, Welcome to Cisco Cloud IVR Server")
+                        .prompt("Hello, Welcome to IVR Server")
                         .build()
         );
         String existingCallResponseVxml = Utils.getVXMLDocument(
