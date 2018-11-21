@@ -72,7 +72,7 @@ public class DummyAppTest {
         assertThat(session.getData(Session.KEYS.CURRENT_NODE_ID.getValue())).isEqualTo(Dummy.app.getStartNodeId());
         verify(sessionStorage, times(1)).updateSession(session);
         assertThat(response).isNotNull();
-        assertThat(response.getPrompt()).isEqualTo("Hello, Welcome to Cisco Cloud IVR Server");
+        assertThat(response.getPrompt()).isEqualTo("Hello, Welcome to IVR Server");
         assertThat(response.getType()).isEqualTo(Node.Type.PROMPT);
         assertThat(response.isLastResponse()).isFalse();
     }
